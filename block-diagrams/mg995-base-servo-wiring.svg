@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" font-family="Arial, Helvetica, sans-serif" font-size="13">
+  <rect width="900" height="600" fill="#ffffff"/>
+  <text x="450" y="26" text-anchor="middle" font-size="18" font-weight="bold" fill="#111">MG995 base servo build - wiring overview (schematic, not to scale)</text>
+
+  <!-- Arduino -->
+  <rect x="40" y="70" width="190" height="230" rx="8" fill="#e3f0f7" stroke="#0b6e8f" stroke-width="2"/>
+  <text x="135" y="95" text-anchor="middle" font-weight="bold" fill="#111">Arduino Uno</text>
+  <text x="55" y="130" fill="#111">5V</text><text x="55" y="160" fill="#111">GND</text>
+  <text x="55" y="190" fill="#111">A4 (SDA)</text><text x="55" y="220" fill="#111">A5 (SCL)</text>
+  <text x="55" y="250" fill="#111">D0 (RX)</text><text x="55" y="280" fill="#111">D1 (TX)</text>
+
+  <!-- PCA9685 -->
+  <rect x="380" y="70" width="210" height="300" rx="8" fill="#e8ecff" stroke="#3b4cc0" stroke-width="2"/>
+  <text x="485" y="95" text-anchor="middle" font-weight="bold" fill="#111">PCA9685 (I2C 0x40)</text>
+  <text x="395" y="130" fill="#111">VCC (logic)</text><text x="395" y="160" fill="#111">GND</text>
+  <text x="395" y="190" fill="#111">SDA</text><text x="395" y="220" fill="#111">SCL</text>
+  <text x="395" y="260" fill="#111">V+ (servo power)</text>
+  <text x="395" y="295" fill="#111">CH0 MG995 Base</text>
+  <text x="395" y="313" fill="#111">CH1 Gripper  CH2 Wrist 2  CH3 Wrist 1</text>
+  <text x="395" y="331" fill="#111">CH4 Shoulder  CH5 Elbow 2 (mirrored)</text>
+  <text x="395" y="349" fill="#111">CH6 Elbow 1</text>
+
+  <!-- HC-05 -->
+  <rect x="40" y="340" width="190" height="130" rx="8" fill="#e8f7e8" stroke="#2e8b2e" stroke-width="2"/>
+  <text x="135" y="362" text-anchor="middle" font-weight="bold" fill="#111">HC-05 (4800 baud)</text>
+  <text x="55" y="390" fill="#111">VCC &lt;- 5V   GND &lt;- GND</text>
+  <text x="55" y="412" fill="#111">TXD -> Arduino D0</text>
+  <text x="55" y="434" fill="#111">RXD &lt;- divider &lt;- Arduino D1</text>
+  <text x="55" y="456" fill="#a33">1k + 2k divider: 5V TX -> ~3.3V</text>
+
+  <!-- Supply -->
+  <rect x="700" y="70" width="170" height="130" rx="8" fill="#fff2dd" stroke="#c77700" stroke-width="2"/>
+  <text x="785" y="95" text-anchor="middle" font-weight="bold" fill="#111">External supply</text>
+  <text x="785" y="115" text-anchor="middle" fill="#111">regulated 5-6V, &gt;=3A</text>
+  <text x="785" y="150" text-anchor="middle" fill="#b00">+ (red)</text>
+  <text x="785" y="180" text-anchor="middle" fill="#111">GND (black)</text>
+
+  <!-- MG995 -->
+  <rect x="700" y="300" width="170" height="110" rx="8" fill="#f3f3f3" stroke="#555" stroke-width="2"/>
+  <text x="785" y="325" text-anchor="middle" font-weight="bold" fill="#111">MG995 (base)</text>
+  <text x="785" y="350" text-anchor="middle" fill="#b00">Red -> V+ rail (CH0 pin)</text>
+  <text x="785" y="370" text-anchor="middle" fill="#111">Brown -> GND (CH0 pin)</text>
+  <text x="785" y="390" text-anchor="middle" fill="#a60">Orange -> signal (CH0 pin)</text>
+
+  <!-- wires -->
+  <g fill="none" stroke-width="2.5">
+    <path d="M230 126 H300 V126" stroke="#c00"/><path d="M230 126 H340 V126 H380" stroke="#c00"/>
+    <path d="M230 156 H380" stroke="#222"/>
+    <path d="M230 186 H380" stroke="#2a7"/>
+    <path d="M230 216 H380" stroke="#e90"/>
+    <path d="M590 256 H650 V150 H700" stroke="#c00"/>
+    <path d="M700 176 H620 V292 H380" stroke="#222" stroke-dasharray="6 3"/>
+    <path d="M590 291 H640 V345 H700" stroke="#a60"/>
+  </g>
+  <text x="240" y="118" fill="#c00" font-size="11">5V -> VCC (logic only)</text>
+  <text x="240" y="148" fill="#222" font-size="11">common GND</text>
+  <text x="602" y="244" fill="#c00" font-size="11">V+ from ext. supply</text>
+  <text x="560" y="535" fill="#a00" font-size="12" font-weight="bold">All grounds common: Arduino, PCA9685, external supply, HC-05, MG995.</text>
+  <text x="40" y="510" fill="#a00" font-size="12" font-weight="bold">Never power the MG995 from the Arduino 5V pin.</text>
+  <text x="40" y="535" fill="#111" font-size="12">PCA9685 V+ rail feeds ALL servos from the external supply.</text>
+  <text x="40" y="560" fill="#111" font-size="12">Removed vs. original: NEMA 17, A4988 driver, 12V jack, D4/D5 wiring.</text>
+</svg>
