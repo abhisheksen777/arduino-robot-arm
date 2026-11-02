@@ -8,7 +8,7 @@ Wiring overview: [`block-diagrams/mg995-base-servo-wiring.svg`](block-diagrams/m
 
 ## 1. Overview
 
-An Arduino Uno drives seven servos through a PCA9685 (I2C) and receives single-character commands from an HC-05 Bluetooth module (hand-gesture glove or phone app).
+An Arduino Uno drives six servos (one per joint) through a PCA9685 (I2C) and receives single-character commands from an HC-05 Bluetooth module (hand-gesture glove or phone app).
 
 ## 2. Original vs. modified
 
@@ -19,14 +19,14 @@ An Arduino Uno drives seven servos through a PCA9685 (I2C) and receives single-c
 | Base power | 12 V jack to driver | external 5-6 V supply (shared servo rail) |
 | Servo power | 3.7 V LiPo on PCA9685 V+ | external regulated 5-6 V on V+ |
 | Arduino pins D4, D5 | stepper | unused |
-| Servo channels | CH0-5 | CH0-6 (re-mapped, see 4) |
+| Servo channels | CH0-5, dual-servo elbow on CH0+CH1 | CH0-5, one servo per joint (re-mapped, see 4) |
 
 ## 3. Components
 
 - Arduino Uno
 - PCA9685 16-channel PWM driver (Hobby Components HCMODU0097 / compatible, address 0x40)
 - HCPCA9685 Arduino library (Hobby Components). Install it before compiling.
-- MG995 servo (base) + 6 other servos (gripper, wrist x2, shoulder, elbow x2)
+- MG995 servo (base) + 5 other servos (shoulder, elbow, wrist 1, wrist 2, gripper)
 - HC-05 Bluetooth module (breakout with onboard regulator)
 - 1 kΩ and 2 kΩ resistors (HC-05 RXD divider)
 - Regulated 5-6 V DC supply, **3 A minimum for the MG995 alone**; size it for the whole arm (all servos moving at once draws much more; 5 A or more is a sensible target)
@@ -37,15 +37,14 @@ An Arduino Uno drives seven servos through a PCA9685 (I2C) and receives single-c
 
 | Channel | Servo | Commands |
 |---|---|---|
-| CH0 | **MG995 base rotation** | `S`/`T` left, `O`/`t` right |
-| CH1 | Gripper | `F` open, `f` close |
-| CH2 | Wrist 2 (rotation) | `R` CW, `L` CCW |
-| CH3 | Wrist 1 (up/down) | `U` up, `G` down |
-| CH4 | Shoulder | `C` up, `c` down |
-| CH5 | Elbow servo 2 (**mirrored**) | `P` up, `p` down |
-| CH6 | Elbow servo 1 (direct) | `P` up, `p` down |
+| CH0 | **MG995 base rotation** | `T`/`S` left, `t`/`O` right |
+| CH1 | Shoulder | `P` up, `p` down |
+| CH2 | Elbow (single servo) | `C` up, `c` down |
+| CH3 | Wrist 1 (up/down) | `U` up, `D` down (`G` = legacy glove alias of `D`) |
+| CH4 | Wrist 2 (rotation) | `R` CW, `L` CCW |
+| CH5 | Gripper | `F` open, `f` close |
 
-Original → new: gripper 5→1, wrist 2 4→2, wrist 1 3→3, shoulder 2→4, elbow R (mirrored) 1→5, elbow L (direct) 0→6. The elbow pair still moves together: CH6 gets the position value, CH5 gets `180 − value` (same mirrored logic as the original). *Assumption:* "elbow servo 1" (CH6) is the original direct servo and "elbow servo 2" (CH5) the mirrored one. If the elbow moves its two halves against each other, swap `CH_ELBOW_1` / `CH_ELBOW_2` at the top of the sketch.
+Original → new: shoulder 2→1, elbow (was a mirrored pair on 0+1) → one servo on 2, wrist 1 3→3, wrist 2 4→4, gripper 5→5. There is **no CH6** and no mirrored elbow logic any more: the elbow is one servo driven directly by its own position value (parking 60, range 10-180, step 20, unchanged from the original left-elbow values). A servo that was previously the mirrored half must be removed, and the single elbow servo may need its direction checked: if `C`/`c` move the wrong way, that joint's horn orientation (or the sign of its code) needs adjusting on the real arm.
 
 Channel numbers are constants at the top of `arduino_robot_arm_code.ino`.
 
@@ -109,13 +108,12 @@ The HC-05 RXD pin is a 3.3 V logic input; the Arduino TX is 5 V. The divider giv
 
 | Char | Action | Char | Action |
 |---|---|---|---|
-| `S` | Base left | `U` / `G` | Wrist 1 up / down |
-| `O` | Base right | `R` / `L` | Wrist 2 CW / CCW |
-| `T` | Base left (glove thumb flex above threshold) | `F` / `f` | Gripper open / close |
-| `t` | Base right (glove thumb flex below threshold) | `P` / `p` | Elbow up / down |
-| `C` / `c` | Shoulder up / down | | |
+| `T` / `S` | Base left (`T` = glove thumb flex above threshold, `S` = original phone command) | `U` / `D` | Wrist 1 up / down (`G` = legacy alias of `D`) |
+| `t` / `O` | Base right (`t` = glove thumb flex below threshold, `O` = original phone command) | `R` / `L` | Wrist 2 CW / CCW |
+| `P` / `p` | Shoulder up / down | `F` / `f` | Gripper open / close |
+| `C` / `c` | Elbow up / down | | |
 
-`T`/`t` were already sent by the glove sketch (commented "thumb 1 - Base Rotation") but the original arm sketch ignored them. They collide with no other command, so the arm now treats them like `S`/`O`; `robotic_glove_code.ino` is unchanged. Each command moves the base by `servo_base_pos_increment` units, clamped to the limits.
+`T`/`t` were already sent by the glove sketch (commented "thumb 1 - Base Rotation") but the original arm sketch ignored them. The original phone commands `S`/`O` are kept as aliases of `T`/`t`; `robotic_glove_code.ino` is unchanged. Each command moves the base by `servo_base_pos_increment` units, clamped to the limits.
 
 ## 11. MG995 calibration
 
@@ -133,7 +131,7 @@ The HCPCA9685 `Servo()` call takes a **position value (0-480), not degrees**. Th
 | `servo_base_min_pos` / `servo_base_max_pos` | 140 / 340 | software limits |
 | `servo_base_pos_increment` | 10 | units per command |
 | `servo_base_step_delay` | 5 | ms per unit (higher = slower) |
-| `servo_base_left_direction` | +1 | set −1 if `S` turns the wrong way |
+| `servo_base_left_direction` | +1 | set −1 if `T`/`S` turns the wrong way |
 
 The firmware clamps every base move to min/max, and the startup position to the limits too.
 
@@ -147,6 +145,9 @@ The firmware clamps every base move to min/max, and the startup position to the 
 At power-up the base servo moves to `servo_base_parking_pos`; with no position feedback it can jump from wherever it was. Keep clear of the arm and power the servo supply with the arm in a safe pose. The other joints behave as in the original (they move on their first command).
 
 ## 13. Safety
+
+- **Startup is open-loop.** On power-up the base jumps from wherever the horn physically is to `servo_base_parking_pos` (default 240, uncalibrated) at full speed; there is no position feedback, and the step-by-step ramp only applies to later moves. Keep the horn off / the arm clear on first power-up.
+- **Every servo write is clamped** to that joint's configured min/max (no overshoot, no negative-to-unsigned wrap). If any limit pair is invalid (needs `0 <= min < max`) the sketch sends no servo pulse and halts with an error on Serial.
 
 - Keep fingers and cables out of the arm's reach when powering on.
 - Use a supply with current limiting or a fuse; a stalled MG995 can draw 1 A or more.

@@ -17,16 +17,17 @@ Robotic Glove: Thingyverse Robotic Glove/ Gauntlet - [(credits: Roman 13)](https
 
 ## Fork modification: MG995 base servo
 
-This fork replaces the NEMA 17 stepper (base rotation) with an **MG995 positional servo on PCA9685 CH0**, powered from a separate regulated 5-6 V supply. Bluetooth (HC-05, 4800 baud) and the other joints are unchanged apart from a PCA9685 channel re-map.
+This fork replaces the NEMA 17 stepper (base rotation) with an **MG995 positional servo on PCA9685 CH0**, powered from a separate regulated 5-6 V supply. Bluetooth (HC-05, 4800 baud) and the other joints keep their original commands but use a new PCA9685 channel map.
 
 | Channel | Servo | Channel | Servo |
 |---|---|---|---|
-| CH0 | MG995 base | CH4 | Shoulder |
-| CH1 | Gripper | CH5 | Elbow servo 2 (mirrored) |
-| CH2 | Wrist 2 | CH6 | Elbow servo 1 |
-| CH3 | Wrist 1 | | |
+| CH0 | MG995 base | CH3 | Wrist 1 |
+| CH1 | Shoulder | CH4 | Wrist 2 |
+| CH2 | Elbow (single servo) | CH5 | Gripper |
 
-Base commands: `S`/`T` = left, `O`/`t` = right (`T`/`t` come from the glove thumb sensor).
+Six servos, one per joint. The original mirrored dual-servo elbow is gone.
+
+Glove commands: `T`/`t` base (`S`/`O` kept as phone aliases), `P`/`p` shoulder, `C`/`c` elbow, `U`/`D` wrist 1, `L`/`R` wrist 2, `F`/`f` gripper. No CH6, one servo per joint.
 
 - Wiring, power, voltage divider, commands, calibration and safety: [HARDWARE_WIRING.md](HARDWARE_WIRING.md)
 - Wiring overview: [block-diagrams/mg995-base-servo-wiring.svg](block-diagrams/mg995-base-servo-wiring.svg)

@@ -15,10 +15,9 @@
   <text x="395" y="130" fill="#111">VCC (logic)</text><text x="395" y="160" fill="#111">GND</text>
   <text x="395" y="190" fill="#111">SDA</text><text x="395" y="220" fill="#111">SCL</text>
   <text x="395" y="260" fill="#111">V+ (servo power)</text>
-  <text x="395" y="295" fill="#111">CH0 MG995 Base</text>
-  <text x="395" y="313" fill="#111">CH1 Gripper  CH2 Wrist 2  CH3 Wrist 1</text>
-  <text x="395" y="331" fill="#111">CH4 Shoulder  CH5 Elbow 2 (mirrored)</text>
-  <text x="395" y="349" fill="#111">CH6 Elbow 1</text>
+  <text x="395" y="295" fill="#111">CH0 MG995 Base (T/t)  CH1 Shoulder (P/p)</text>
+  <text x="395" y="313" fill="#111">CH2 Elbow (C/c)  CH3 Wrist 1 (U/D)</text>
+  <text x="395" y="331" fill="#111">CH4 Wrist 2 (L/R)  CH5 Gripper (F/f)</text>
 
   <!-- HC-05 -->
   <rect x="40" y="340" width="190" height="130" rx="8" fill="#e8f7e8" stroke="#2e8b2e" stroke-width="2"/>
